@@ -1,6 +1,7 @@
 #include<allegro5/allegro5.h>
 #include<allegro5/allegro_primitives.h>
 #include<allegro5/allegro_image.h>
+#include <allegro5/allegro_font.h>
 #include <stdio.h>
 
 // Definindo configuracoes do mapa
@@ -36,6 +37,24 @@ bool item_kit_coletado = false;
 bool item_xarope_coletado = false;
 bool item_lenco_coletado = false;
 
+// Definindo variavel para fim de jogo
+bool fimJogo = false;
+
+ALLEGRO_BITMAP* grama = NULL;
+ALLEGRO_BITMAP* grama_alta = NULL;
+ALLEGRO_BITMAP* chao_pedra = NULL;
+ALLEGRO_BITMAP* chao_areia = NULL;
+ALLEGRO_BITMAP* chao_terra = NULL;
+ALLEGRO_BITMAP* planta1 = NULL;
+ALLEGRO_BITMAP* planta2 = NULL;
+ALLEGRO_BITMAP* planta3 = NULL;
+ALLEGRO_BITMAP* buraco = NULL;
+ALLEGRO_BITMAP* morro = NULL;
+ALLEGRO_BITMAP* m_seringa = NULL;
+ALLEGRO_BITMAP* m_kit = NULL;
+ALLEGRO_BITMAP* m_xarope = NULL;
+ALLEGRO_BITMAP* m_lenco = NULL;
+
 // Atribuindo as imagens no mapa
 int mapa[HMAPA][WMAPA] = {
     {1, 1, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
@@ -65,28 +84,6 @@ int mapa[HMAPA][WMAPA] = {
     {1, 1, 3, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 3, 3, 13,},
 };
 
-// Atualizando a posicao no sprite
-void atualizarSprite(float& sprite) {
-    sprite += 0.3f;
-    if (sprite > 3) {
-        sprite -= 3;
-    }
-}
-
-ALLEGRO_BITMAP* grama = NULL;
-ALLEGRO_BITMAP* grama_alta = NULL;
-ALLEGRO_BITMAP* chao_pedra = NULL;
-ALLEGRO_BITMAP* chao_areia = NULL;
-ALLEGRO_BITMAP* chao_terra = NULL;
-ALLEGRO_BITMAP* planta1 = NULL;
-ALLEGRO_BITMAP* planta2 = NULL;
-ALLEGRO_BITMAP* planta3 = NULL;
-ALLEGRO_BITMAP* buraco = NULL;
-ALLEGRO_BITMAP* morro = NULL;
-ALLEGRO_BITMAP* m_seringa = NULL;
-ALLEGRO_BITMAP* m_kit = NULL;
-ALLEGRO_BITMAP* m_xarope = NULL;
-ALLEGRO_BITMAP* m_lenco = NULL;
 
 // Funcao para desenhar o mapa com base na matriz
 void desenharMapa() {
@@ -167,6 +164,23 @@ void desenharMapa() {
                 break;
             }
         }
+    }
+
+    if (fimJogo) {
+        ALLEGRO_FONT* fonte = al_create_builtin_font();
+
+        al_draw_text(fonte, al_map_rgb(255, 255, 255), SCREENWIDTH / 2, SCREENHEIGHT / 2,
+            ALLEGRO_ALIGN_CENTER, "PARABENS, TODOS OS ITENS COLETADOS! FIM DE JOGO!");
+
+        al_destroy_font(fonte);
+    }
+}
+
+// Atualizando a posicao no sprite
+void atualizarSprite(float& sprite) {
+    sprite += 0.3f;
+    if (sprite > 3) {
+        sprite -= 3;
     }
 }
 
@@ -289,6 +303,13 @@ void movimentacaoPlayer2(int direction) {
     }
 }
 
+void verificarFimDeJogo() {
+    if (item_seringa_coletado && item_kit_coletado &&
+        item_xarope_coletado && item_lenco_coletado) {
+        fimJogo = true;
+    }
+}
+
 int main() {
     ALLEGRO_DISPLAY* display;
 
@@ -344,6 +365,7 @@ int main() {
 
         atualizarSprite(frame1);
         atualizarSprite(frame2);
+        verificarFimDeJogo();
 
         // Identificando os eventos ocorridos
         if (events.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
